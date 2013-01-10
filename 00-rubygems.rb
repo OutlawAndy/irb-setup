@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
 # -*- ruby -*-
 
-# Load RubyGems if it is available.
 begin
-#  require 'rubygems'
-rescue LoadError
-  puts "(no rubygems)"
+	require 'rubygems'
+	require 'irb/completion'
+	require 'irb/ext/save-history'
+rescue LoadError => e
+	puts e.message
 end

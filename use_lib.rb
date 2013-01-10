@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 # -*- ruby -*-
 
-$:.unshift('lib')
+$:.unshift 'lib'
 
+$:.unshift '.'
