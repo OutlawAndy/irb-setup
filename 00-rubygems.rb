@@ -5,6 +5,12 @@ begin
 	require 'rubygems'
 	require 'irb/completion'
 	require 'irb/ext/save-history'
+	require 'awesome_print'
 rescue LoadError => e
-	puts e.message
+	e.message
+end
+
+begin
+	AwesomePrint.irb!
+rescue
 end
