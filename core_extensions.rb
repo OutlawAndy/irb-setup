@@ -1,6 +1,4 @@
 # -*- ruby -*-
-require 'active_support/number_helper'
-require 'active_support/core_ext'
 
 class<<( Helper = self )
 	include ActiveSupport::NumberHelper
@@ -98,6 +96,7 @@ DateTime.class_eval do
 end
 
 Time.class_eval do
+
 	def prettify options = {}
 		pretty = self.strftime('%B ')
 		pretty = self.strftime('%b ') if options[:month] == :short
@@ -109,4 +108,7 @@ Time.class_eval do
 		pretty.prepend self.strftime('%a, ') if options[:day] == :short
 		pretty
 	end
+
+  usage "pretty", 'TIME.pretty [, month: :short][, year: true][, year: :short][, time: true][, day: true][, day: :short]'
+  alias pretty prettify
 end

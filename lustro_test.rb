@@ -1,6 +1,3 @@
-require 'test/unit'
-require 'shoulda'
-require 'lustro'
 
 class Parent
   def im_parent; end

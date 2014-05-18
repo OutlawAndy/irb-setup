@@ -6,4 +6,4 @@ Dir["#{ENV['HOME']}/.irb.d/**/*.rb"].sort.each do |fn|
   load fn
 end
 
-noecho
+echo
