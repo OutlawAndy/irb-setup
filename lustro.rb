@@ -1,4 +1,4 @@
-#!/usr/bin/ruby -wKU
+#!/usr/bin/env ruby
 
 module Lustro
   PublicMethods  = lambda { |cls| cls.public_instance_methods(false).sort }

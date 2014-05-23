@@ -4,7 +4,7 @@
 usage "--", "Print the last value"
 def __
   p IRB.CurrentContext.last_value
-  IRB.CurrentContext.echo ? nil : IRB.CurrentContext.last_value 
+  IRB.CurrentContext.echo ? nil : IRB.CurrentContext.last_value
 end
 
 def set_echo_mode(is_echo)
@@ -21,7 +21,7 @@ end
 
 def not_quiet
   set_echo_mode(true)
-end  
+end
 
 usage "q", "Enter 'quiet' mode."
 alias q quiet

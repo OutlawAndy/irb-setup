@@ -1,7 +1,6 @@
 # -*- ruby -*-
-
 class<<( Helper = self )
-	include ActiveSupport::NumberHelper
+	include ::ActiveSupport::NumberHelper
 end
 
 Float.class_eval do
@@ -87,7 +86,7 @@ String.class_eval do
 	end
 end
 
-DateTime.class_eval do
+Date.class_eval do
 
 	def to_epoch
 		strftime('%s').to_i

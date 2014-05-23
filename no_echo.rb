@@ -24,9 +24,3 @@ end
 def emacs_noecho
   noecho if in_emacs_shell?
 end
-
-emacs_noecho
-
-END {
-  emacs_noecho
-}
