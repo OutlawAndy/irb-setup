@@ -30,8 +30,8 @@ end
 
 def copy_history
   history = Readline::HISTORY.entries
-  index = history.rindex("exit") || -1
+  index = history.rindex("quit") || -1
   content = history[(index+1)..-2].join("\n")
-  puts content
+  ap content
   copy content
 end

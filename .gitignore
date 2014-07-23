@@ -1,3 +1,4 @@
 *.rbc
 support
 irbrc_amature
+.bundle/
