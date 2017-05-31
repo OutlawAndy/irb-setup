@@ -26,6 +26,7 @@ alias h usage
 begin
   require 'date'
   require 'awesome_print'
+  require 'pry'
   # require 'active_support'
   # require 'factory_girl'
   require 'redcarpet'
@@ -37,9 +38,14 @@ end
 
 begin
   AwesomePrint.irb!
-  Pry.start
 rescue
   puts "No AwesomePrint...\n   Not Awesome!!"
+end
+
+begin
+  Pry.start
+rescue
+  puts "No Pry :-("
 end
 
 
