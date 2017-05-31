@@ -21,6 +21,6 @@ def find_method(method_name=nil)
   end
   puts result.sort
 end
-
-usage "find_method", "Find method named NAME."
+alias :fm :find_method
+usage "find_method", "Find method named NAME. like ~ :exact_name|\"partial_name\"|/pattern/"
 

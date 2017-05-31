@@ -13,6 +13,7 @@ def ri method = nil
   system 'ri', method.to_s
 end
 
+usage "mate", "open NAME method in TextMate2 for editing"
 def mate name
 	begin
 		method(name.to_sym).source_location
@@ -20,14 +21,17 @@ def mate name
 	system 'mate', "#{file} -l #{line}"
 end
 
+usage "copy", "copy STRING to system clipboard"
 def copy string
   IO.popen('pbcopy', 'w') { |pb| pb << string.to_s }
 end
 
+usage "paste", "paste from system clipboard"
 def paste
   `pbpaste`
 end
 
+usage "copy_history", "copy current IRB session, line for line, to system clipboard"
 def copy_history
   history = Readline::HISTORY.entries
   index = history.rindex("quit") || -1

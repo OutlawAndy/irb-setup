@@ -1,40 +1,19 @@
 # -*- ruby -*-
 
-class<<( Helper = self )
-  begin
-    include ::ActiveSupport::NumberHelper
-  rescue
-  end
-end
-
-TIME_PRETTIFIER = ->(obj, options){
-  pretty = obj.strftime('%B ')
-  pretty = obj.strftime('%b ') if options[:month] == :short
-  pretty<< obj.instance_eval( "obj.strftime('%d').to_i.ordinalize" )
-  pretty<< obj.strftime(', %Y') if options[:year] == true
-  pretty<< obj.strftime(" '%y") if options[:year] == :short
-  pretty<< obj.strftime(' at %-l:%M%P') if options[:time] == true
-  pretty<< obj.strftime(', %-l:%M%P') if options[:time] == :short
-  pretty<< obj.strftime(' (%-l%P)') if options[:time] == :hour
-  pretty.prepend obj.strftime('%A, ') if options[:day] == true
-  pretty.prepend obj.strftime('%a, ') if options[:day] == :short
-  pretty
-}
-
 Numeric.class_eval do
 
-  def to_money
-    Helper.number_to_currency self
-  end
-  alias :money :to_money
-
-  def to_dollars
-    try(:/,100)
-  end
-  alias :to :to_dollars
-
-  def to_cents
-    try(:*,100).to_i
+  def ordinalize
+    suffix = if (11..13).include?(self % 100)
+      "th"
+    else
+      case self % 10
+        when 1; "st"
+        when 2; "nd"
+        when 3; "rd"
+        else    "th"
+      end
+    end
+    "#{self}#{suffix}"
   end
 
   def as_time
@@ -42,35 +21,38 @@ Numeric.class_eval do
   end
 
   def to_pretty_time opts = {}
-    self.as_time.pretty opts
+    as_time.pretty opts
   end
-  alias :pretty :to_pretty_time
+  alias_method :pretty, :to_pretty_time
+
+  def one?
+    !!( self == 1 )
+  end
+
+  def two?
+    !!( self == 2 )
+  end
+
+  def three?
+    !!( self == 3 )
+  end
 
   def not_zero?
     !!( self > 0 )
   end
-  alias :ok? :not_zero?
+  alias_method :ok?, :not_zero?
 
   def as_phone
-    Helper.number_to_phone self, area_code: true
+    to_s.as_phone_number
   end
 
 end
 
-Fixnum.class_eval do
+Integer.class_eval do
 
   def to_d
     to_s.to_d
   end
-
-  def to_money divisor=100
-    to_d./(divisor).to_money
-  end
-
-  def to_dollar divisor=100
-    to_d./(divisor)
-  end
-  alias :to_dollars :to_dollar
 
   def format_seconds
     if self > 60
@@ -79,75 +61,106 @@ Fixnum.class_eval do
       "%.1f sec" % to_d
     end
   end
-  alias :to_minutes :format_seconds
+  alias_method :to_minutes, :format_seconds
 
 end
 
 
 String.class_eval do
+  def remove pattern
+    gsub pattern, ''
+  end
+  alias :cut :remove
+
+  def dehumanize space_substitute = "-"
+    if space_substitute.downcase.start_with?('camel')
+      strip.downcase.cut(/[^a-z0-9\s]/).capitalize.gsub(/\s(.)/){$1.upcase}
+    else
+      strip.downcase.cut(/[^a-z0-9\s]/).gsub /\s/, space_substitute
+    end
+  end
 
   def as_time
     Time.at self.to_i
   end
 
-  def to_cents
-    to_d.to_cents
+  def numbers
+    strip.remove(/\D/)
   end
 
-  def to_number
-    digits = self.sub!(/^\s*/,"") # remove leading spaces
-    digits.sub!(/^\+?1/,"")       # remove country code, e.g. '+1' or '1'
-    digits.gsub!(/[^\d]/,"")      # remove remaining fluff, leaving only the phone digits
-    digits                        # return the new phone number string
+  def phone_format
+    numbers = strip.remove(/^\+?1/).remove(/\D/)
+    if numbers.length > 10
+      numbers.gsub(/^(\d{3})(\d{3})(\d{4})(\d*)/,'(\1) \2-\3 x\4')
+    else
+      numbers.gsub(/^(\d{3})(\d{3})(\d{4})/,'(\1) \2-\3')
+    end
   end
 
-  def as_phone
-    Helper.number_to_phone self.to_number, area_code: true
+  def find_and_replace hash
+    gsub Regexp.union(hash.keys), hash
   end
 
-  def as_phone_number
-    self.to_number.as_phone
-  end
-
-  def render_as_html
-    MD::Parser.render( self ).html_safe rescue nil
-  end
-end
-
-Time.class_eval do
-  def pretty opts = {}
-    TIME_PRETTIFIER.( self, opts )
-  end
 end
 
 Date.class_eval do
   def pretty opts = {}
-    TIME_PRETTIFIER.( self, opts )
+    to_time.pretty opts
   end
+
+  def self.days_in_month month, year = Date.today.year
+    new(year, month, -1).day
+  end
+
+  def weekday?
+    !weekend?
+  end
+
+  def weekend?
+    !!( saturday? || sunday? )
+  end
+
+  def school_year
+    if month > 6
+      "#{year}-#{next_year.year.to_s[2..-1]}"
+    else
+      "#{last_year.year}-#{year.to_s[2..-1]}"
+    end
+  end
+
 end
 
 Time.class_eval do
-  usage "pretty", 'TIME.pretty [, month: :short][, year: true][, year: :short][, time: true][, day: true][, day: :short]'
-  def pretty opts = {}
-    TIME_PRETTIFIER.( self, opts )
+  def pretty options = {}
+    sep = options[:seperator] || ","
+    pretty = self.strftime("%B ")
+    pretty = self.strftime("%b ") if options[:month] == :short
+    pretty<< self.strftime("%d").to_i.ordinalize
+    pretty = self.strftime("%-m/%-d/%y") if options[:month] == :micro
+    pretty<< self.strftime("#{sep} %Y") if options[:year] == true
+    pretty<< self.strftime(" %y") if options[:year] == :short
+    pretty<< self.strftime(" at %-l:%M%P") if options[:time] == true
+    pretty<< self.strftime("#{sep} %-l:%M%P") if options[:time] == :short
+    pretty<< self.strftime(" (%-l%P)") if options[:time] == :hour
+    pretty.prepend self.strftime("%A#{sep} ") if options[:day] == true
+    pretty.prepend self.strftime("%a#{sep} ") if options[:day] == :short
+    pretty
   end
 
   def to_epoch
-    self.to_i
+    to_i
   end
 
   def to_serial_string
     strftime('%m%d%y%H%M%S')
   end
-end
 
-Hash.class_eval do
-  def to_query_string
-    q = Rack::Utils.build_nested_query self
-    # if self.map{|k,v| v.respond_to?( :to_hash ) || v.respond_to?( :to_a ) }
-    #   Rack::Utils.build_nested_query self
-    # else
-    #   Rack::Utils.build_query self
-    # end
+  def weekday?
+    !weekend?
   end
+
+  def weekend?
+    !!( saturday? || sunday? )
+  end
+
 end

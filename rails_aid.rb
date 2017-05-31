@@ -1,15 +1,15 @@
-usage "factory", "load factory_girl and any factories"
-def factory
-  require 'factory_girl'
-  files = ['test/factories.rb', 'spec/factories.rb'] + Dir['test/factories/*.rb'] + Dir['spec/factories/*.rb']
-  files.each do |fn|
-    if File.exist?(fn)
-      puts "loading factory: #{fn}"
-      load fn
-    end
-  end
-  nil
-end
+# usage "factory", "load factory_girl and any factories"
+# def factory
+#   require 'factory_girl'
+#   files = ['test/factories.rb', 'spec/factories.rb'] + Dir['test/factories/*.rb'] + Dir['spec/factories/*.rb']
+#   files.each do |fn|
+#     if File.exist?(fn)
+#       puts "loading factory: #{fn}"
+#       load fn
+#     end
+#   end
+#   nil
+# end
 
 JW_RAILS_AID_ORIGINAL_LOGGER = []
 

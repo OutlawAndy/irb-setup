@@ -110,7 +110,7 @@ def where_is(klass, method = nil)
     Where.is_class_primarily(klass)
   end)
 end
-alias :open_to_edit :where_is
+alias :mate :where_is
 
 if __FILE__ == $0
   class World
